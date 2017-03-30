@@ -22,6 +22,9 @@
 				// var tc_name = data.result.tc_name;
 				//cookie可以实现页面间的数据跳转
 				if(data.code == 200){
+					//存储cookie(实现数据在不同页面共享)
+					var info = JSON.stringify(data.result);
+					$.cookie('loginInfo',info,{path:'/'});
 					location.href = '/index/index';
 				}
 			}
