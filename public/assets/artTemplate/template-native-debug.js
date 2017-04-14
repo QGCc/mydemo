@@ -59,7 +59,7 @@ var cacheStore = template.cache = {};
  * @return  {String}    渲染好的字符串
  */
 template.render = function (source, options) {
-    return compile(source, options);
+    return compile(source)(options);
 };
 
 
@@ -335,6 +335,7 @@ var SPLIT_RE = /[^\w$]+/g;
 var KEYWORDS_RE = new RegExp(["\\b" + KEYWORDS.replace(/,/g, '\\b|\\b') + "\\b"].join('|'), 'g');
 var NUMBER_RE = /^\d[^,]*|,\d[^,]*/g;
 var BOUNDARY_RE = /^,+|,+$/g;
+var SPLIT2_RE = /^$|,+/;
 
 
 // 获取变量
@@ -345,7 +346,7 @@ function getVariable (code) {
     .replace(KEYWORDS_RE, '')
     .replace(NUMBER_RE, '')
     .replace(BOUNDARY_RE, '')
-    .split(/^$|,+/);
+    .split(SPLIT2_RE);
 };
 
 
@@ -473,7 +474,7 @@ function compiler (source, options) {
         if (compress) {
             code = code
             .replace(/\s+/g, ' ')
-            .replace(/<!--.*?-->/g, '');
+            .replace(/<!--[\w\W]*?-->/g, '');
         }
         
         if (code) {
@@ -586,16 +587,14 @@ function compiler (source, options) {
 
 
 
-
+// CommonJs
+if (typeof exports === 'object' && typeof module !== 'undefined') {
+    module.exports = template;
 // RequireJS && SeaJS
-if (typeof define === 'function') {
+} else if (typeof define === 'function') {
     define(function() {
         return template;
     });
-
-// NodeJS
-} else if (typeof exports !== 'undefined') {
-    module.exports = template;
 } else {
     this.template = template;
 }

@@ -59,7 +59,7 @@ var cacheStore = template.cache = {};
  * @return  {String}    渲染好的字符串
  */
 template.render = function (source, options) {
-    return compile(source, options);
+    return compile(source)(options);
 };
 
 
@@ -335,6 +335,7 @@ var SPLIT_RE = /[^\w$]+/g;
 var KEYWORDS_RE = new RegExp(["\\b" + KEYWORDS.replace(/,/g, '\\b|\\b') + "\\b"].join('|'), 'g');
 var NUMBER_RE = /^\d[^,]*|,\d[^,]*/g;
 var BOUNDARY_RE = /^,+|,+$/g;
+var SPLIT2_RE = /^$|,+/;
 
 
 // 获取变量
@@ -345,7 +346,7 @@ function getVariable (code) {
     .replace(KEYWORDS_RE, '')
     .replace(NUMBER_RE, '')
     .replace(BOUNDARY_RE, '')
-    .split(/^$|,+/);
+    .split(SPLIT2_RE);
 };
 
 
@@ -473,7 +474,7 @@ function compiler (source, options) {
         if (compress) {
             code = code
             .replace(/\s+/g, ' ')
-            .replace(/<!--.*?-->/g, '');
+            .replace(/<!--[\w\W]*?-->/g, '');
         }
         
         if (code) {
@@ -607,11 +608,20 @@ var filtered = function (js, filter) {
 
 
 defaults.parser = function (code, options) {
+
+    // var match = code.match(/([\w\$]*)(\b.*)/);
+    // var key = match[1];
+    // var args = match[2];
+    // var split = args.split(' ');
+    // split.shift();
+
     code = code.replace(/^\s/, '');
-    
+
     var split = code.split(' ');
     var key = split.shift();
     var args = split.join(' ');
+
+    
 
     switch (key) {
 
@@ -673,9 +683,10 @@ defaults.parser = function (code, options) {
             // 过滤器（辅助方法）
             // {{value | filterA:'abcd' | filterB}}
             // >>> $helpers.filterB($helpers.filterA(value, 'abcd'))
-            if (args.indexOf('|') !== -1) {
+            // TODO: {{ddd||aaa}} 不包含空格
+            if (/^\s*\|\s*[\w\$]/.test(args)) {
 
-                var escape = options.escape;
+                var escape = true;
 
                 // {{#value | link}}
                 if (code.indexOf('#') === 0) {
@@ -686,14 +697,13 @@ defaults.parser = function (code, options) {
                 var i = 0;
                 var array = code.split('|');
                 var len = array.length;
-                var pre = escape ? '$escape' : '$string';
-                var val = pre + '(' + array[i++] + ')';
+                var val = array[i++];
 
                 for (; i < len; i ++) {
                     val = filtered(val, array[i]);
                 }
 
-                code = '=#' + val;
+                code = (escape ? '=' : '=#') + val;
 
             // 即将弃用 {{helperName value}}
             } else if (template.helpers[key]) {
@@ -714,16 +724,14 @@ defaults.parser = function (code, options) {
 };
 
 
-
+// CommonJs
+if (typeof exports === 'object' && typeof module !== 'undefined') {
+    module.exports = template;
 // RequireJS && SeaJS
-if (typeof define === 'function') {
+} else if (typeof define === 'function') {
     define(function() {
         return template;
     });
-
-// NodeJS
-} else if (typeof exports !== 'undefined') {
-    module.exports = template;
 } else {
     this.template = template;
 }

@@ -1,21 +1,6 @@
-define(['jquery','cookie'],function($){
-	// NProgress.start();
 
-	// NProgress.done();
-//控制左侧导航菜单的折叠
-	$('.navs ul').prev('a').on('click', function () {
-		$(this).next().slideToggle();
-	});
-
-	var pathname = location.pathname;
-	// console.log(pathname);
-	console.log($.cookie('PHPSESSID'));
-	//验证用户是否登录
-	if(!$.cookie('PHPSESSID') && pathname!='/' && pathname!='/login'){
-		location.href = '/login';
-	}
-
-	$('#loginForm').submit(function(){
+define(['jquery'],function($){
+    $('#loginForm').submit(function(){
 		//获取表单数据
 		var formData = $(this).serialize();
 		//调用接口
@@ -42,7 +27,4 @@ define(['jquery','cookie'],function($){
 		//原生js中的return false 只能阻止默认行为，不能阻止冒泡
 		return false;
 	});
-
-	
-})
-	
+});

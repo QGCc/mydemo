@@ -7,7 +7,7 @@
     if(array_key_exists('PATH_INFO',$_SERVER)){
         // echo 1;
         $url = $_SERVER['PATH_INFO'];
-        echo $url;
+        // echo $url;
         //分割字符串
         // $arr = explode('/',$path);
         //substr截取字符串，把第一个字符串截取了
