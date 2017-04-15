@@ -2,14 +2,22 @@
     主页功能
 */
 
-define(['jquery','echarts','cookie'],function($,echarts){
+define(['jquery','echarts','template','cookie'],function($,echarts,template){
 
      var loginInfo = $.cookie('loginInfo');
         if(loginInfo){
             //把字符串转化为对象
+            console.log(loginInfo);
             loginInfo = JSON.parse(loginInfo);
-            $('.aside .profile img').attr('src',loginInfo.tc_avatar);
-            $('.aside .profile h4').html(loginInfo.tc_name);
+            var tpl = '<div class="avatar img-circle">'+
+                             '<img src="{{tc_avatar}}">'+
+                      '</div>'+
+                      '<h4>{{tc_name}}</h4>';
+             var render = template.compile(tpl); 
+             var html = render(loginInfo);  
+             $('.aside .profile').html(html)     ;
+            // $('.aside .profile img').attr('src',loginInfo.tc_avatar);
+            // $('.aside .profile h4').html(loginInfo.tc_name);
         }
 
         //实现退出功能

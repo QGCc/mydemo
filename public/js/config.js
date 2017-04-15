@@ -6,6 +6,7 @@ require.config({
         bootstrap:'bootstrap/js/bootstrap.min',
         nprogress:'nprogress/nprogress',
         echarts:'echarts/echarts.min',
+        template:'artTemplate/template'
     },
     shim:{
         bootstrap:{
