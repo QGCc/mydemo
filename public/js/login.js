@@ -1,5 +1,6 @@
 
-define(['jquery'],function($){
+define(['jquery','cookie'],function($){
+
     $('#loginForm').submit(function(){
 		//获取表单数据
 		var formData = $(this).serialize();
